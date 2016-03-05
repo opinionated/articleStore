@@ -71,6 +71,38 @@ func (s Store) GetData(typeName, articleName string) ([]byte, error) {
 	return ioutil.ReadAll(file)
 }
 
+// FileExists checks if a file exists
+func (s Store) FileExists(articleName string) (bool, error) {
+	prefix, err := s.getPrefix(articleName)
+	if err != nil {
+		return false, err
+	}
+
+	dir, err := os.Open(prefix + articleName + "." + s.fileType)
+	if err != nil {
+		return false, err
+	}
+
+	err = dir.Close()
+	return true, err
+}
+
+// FolderExists checks if a folder exists
+func (s Store) FolderExists(articleName string) (bool, error) {
+	articles, err := s.ListArticles()
+	if err != nil {
+		return false, err
+	}
+
+	for _, article := range articles {
+		if article == articleName {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
 // ListArticles all the articles in the base directory.
 func (s Store) ListArticles() ([]string, error) {
 	dir, err := os.Open(s.basePath)
